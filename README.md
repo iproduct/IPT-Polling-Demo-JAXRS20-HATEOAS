@@ -1,7 +1,7 @@
-IPT_Polling_Demo_JAX-RS_2.0_HATEOAS
+IPT Polling Demo JAX-RS 2.0 HATEOAS
 ====================================
 
-IPT_Polling_Demo_JAX-RS_2.0_HATEOAS is a Maven project demonstrating REST HATEOAS 
+IPT Polling Demo is a Maven project demonstrating REST HATEOAS 
 development using novelties in JAX-RS 2.0 API and GlassFish Jersey RI, such as:
 
  - Standardized REST Client API;
