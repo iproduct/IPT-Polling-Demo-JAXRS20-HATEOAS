@@ -1,0 +1,435 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright (c) 2003-2014 IPT - Intellectual Products & Technologies.
+All rights reserved.
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 with Classpath Exception only ("GPL"). 
+You may use this file only in compliance with GPL. You can find a copy 
+of GPL in the root directory of this project in the file named LICENSE.txt.
+
+When distributing the software, include this License Header Notice in each
+file and include the GPL file named LICENSE.txt in the root directory of 
+the project.
+
+GPL Classpath Exception:
+IPT - Intellectual Products & Technologies (IPT) designates this particular 
+file as subject to the "Classpath" exception as provided by IPT in the GPL 
+Version 2 License file that accompanies this code.
+
+Modifications:
+If applicable, add the following below the License Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyright [year] [name of copyright owner]"
+-->
+<html><head><title>IPT Polling Demo JAX-RS 2.0 HATEOAS</title></head>
+    <body>
+        <h1>IPT Polling Demo JAX-RS 2.0 HATEOAS</h1>
+
+        <p>IPT_Polling_Demo_JAX-RS_2.0_HATEOAS is a Maven project demonstrating REST HATEOAS 
+            development using novelties in JAX-RS 2.0 API and GlassFish Jersey RI, such as:</p>
+        <ul>
+            <li>Standardized REST Client API;</li>
+
+            <li>Client-side and server-side asynchronous HTTP request processing;</li>
+
+            <li>Integration of declarative validation of resources, response entities, 
+                method parameters, and fields using JSR 349: Bean Validation 1.1;</li>
+
+            <li>Improved server-suggested content negotiation in addition to that suggested 
+                by client;</li>
+
+            <li>Aspect-oriented extensibility of request/response processing using Filters 
+                (non wrapping) and Interceptors (wrapping) client and server extension points;</li>
+
+            <li>Dynamic  extension registration using DynamicFeature interface;</li>
+
+            <li>Hypermedia As The Engine Of Application State (HATEOAS) REST architectural 
+                constraint support using state transition links (support for new HTTP Link 
+                header as well as JAXB serialization of resource links).</li>
+        </ul>
+
+        <h2>Running the Demo</h2>
+
+        <p>
+            The demo can be deployed on Java EE 7 Server (e.g. Glassfish 4.1) and needs 
+            a data-source to be configured in <em>/src/main/resources/META-INF/persistence.xml</em>
+            and administratively created on Java EE Server. The default config uses a JTA data-source 
+            GlassFish creates by default: <em>jdbc/__TimerPool</em><br>
+            For GlassFish 4 you can start it from console as follows:
+        <pre>
+mvn clean package
+$AS_HOME/asadmin deploy target/ipt-polling-demo-1.0-SNAPSHOT.war
+        </pre>
+    </p>
+    <p>
+        <strong>EASIER WAY :)</strong> Because this can be somewhat tedious it can also be run on <strong>embedded 
+        GlassFish 4 Server</strong> using Maven goal: <em>embedded-glassfish:run</em>, as follows:
+    </p>
+    <pre>
+mvn embedded-glassfish:run
+    </pre>
+    
+    <p>
+    The embedded server is run on 8080 by default (you can change it in maven config
+    for "maven-embedded-glassfish-plugin" in pom.xml file) and uses a JTA data-source 
+    GlassFish creates by default: jdbc/__TimerPool
+    </p>
+
+        <h2>Running Functional/Integration Tests</h2>
+
+    <p>
+    You can also run the functional/integration tests using:
+    </p>
+    <pre>
+mvn install
+    </pre>
+    
+    <p>As a demo configuration there are two example test classes:</p>
+<ul>
+    <li><strong>PollsResourceJerseyTest</strong> - run by <em><strong>maven-surefire-plugin</strong></em> and extending JerseyTest
+        (using Jersey Test Framework allowing running tests with a number of embedded
+        or external containers (e.g. Grizzly2, Jetty,  GlassFish, etc.)</li>
+
+    <li><strong>PollsResourceIT</strong> - integration tests run by <em><strong>maven-failsafe-plugin</strong></em> after starting 
+        the embedded GlassFish server and deploying the app at /polling web context URI
+        By default maven-failsafe-plugin recognizes the integration tests from unit tests 
+        by naming conventions: <em>**/IT*.java</em>, <em>**/*IT.java</em>, and <em>**/*ITCase.java</em>.</li>
+</ul>
+    <p>The results from functional/integration tests can be found accordingly in
+        the following folders:
+    </p>
+    <pre>
+/target/surefire-reports
+/target/failsafe-reports
+    </pre>
+    
+        <h2>Interacting with IPT Polling RESTful service</h2>
+
+    <p>After successfully deploying the application, you can try the IPT Polling RESTful 
+        service using the following URIs 
+        [root resource: <a href="http://localhost:8080/polling/resources/polls" target="_blank">http://localhost:8080/polling/resources/polls</a>]:</p>
+    <blockquote>
+        <table border="1">
+            <tr>
+                <th>Description</th>
+                <th>curl command</th>
+                <th>Response to Expect</th>
+            </tr>
+            
+            <tr>
+                <td>Create a new Poll using JSON format</td>
+                <td><code>curl -X POST -i -H "Content-Type: application/json" -H "Accept: application/json"
+                    -d "{\"title\":\"Favourite IDE\",\"question\":\"Which is your favourite IDE?\",\"start\":\"2014-11-14T09:00:00\",\"end\":\"2014-11-18T18:00:00\"}"
+                    <a href="http://localhost:8080/polling/resources/polls" target="_blank">http://localhost:8080/polling/resources/polls</a>
+                </code></td>
+                <td><code><pre>HTTP/1.1 201 Created
+Server: Undefined Product Name - define product and version info in config/branding
+  0.0.0
+X-Powered-By: Servlet/3.1 JSP/2.3 (Undefined Product Name - define product and vers
+ion info in config/branding  0.0.0  Java/Oracle Corporation/1.8)
+Location: http://localhost:8080/polling/resources/polls/84
+Link: &lt;http://localhost:8080/polling/resources/polls&gt;; rel=self
+Content-Type: application/json
+Date: Tue, 18 Nov 2014 17:13:52 GMT
+Content-Length: 182
+
+{"id":1,"status":"CREATED","title":"Favourite IDE","question":"Which is your 
+favourite IDE?","start":"2014-11-14T09:00:00+02:00","end":"2014-11-18T18:00:00+02:00",
+"alternatives":[]}</pre></code></td>
+            </tr>
+
+            <tr>
+                <td>GET All Polls in JSON format</td>
+                <td><code>curl -X GET -i -H "Accept: application/json"
+                    <a href="http://localhost:8080/polling/resources/polls" target="_blank">http://localhost:8080/polling/resources/polls</a>
+                </code></td>
+                <td><code><pre>HTTP/1.1 200 OK
+Server: Undefined Product Name - define product and version info in config/branding
+  0.0.0
+X-Powered-By: Servlet/3.1 JSP/2.3 (Undefined Product Name - define product and vers
+ion info in config/branding  0.0.0  Java/Oracle Corporation/1.8)
+Link: &lt;http://localhost:8080/polling/resources/polls&gt; rel=self
+Content-Type: application/json
+Date: Tue, 18 Nov 2014 17:25:07 GMT
+Content-Length: 407
+
+{
+    "size": 1,
+    "_embedded": {
+        "poll": [
+            {
+                "id": 1,
+                "status": "CREATED",
+                "title": "Favourite IDE",
+                "question": "Which is your favourite IDE?",
+                "start": "2014-11-14T09:00:00+02:00",
+                "end": "2014-11-18T18:00:00+02:00",
+                "_links": {
+                    "link": [
+                        {
+                            "href": "http://localhost:8080/polling/resources/polls/1",
+                            "rel": "self",
+                            "type": "application/json"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "_links": {
+        "link": [
+            {
+                "href": "http://localhost:8080/polling/resources/polls",
+                "rel": "self"
+            }
+        ]
+    }
+}</pre></code></td>
+            </tr>
+            
+            <tr>
+                <td>GET All Polls in XML format</td>
+                <td><code>curl -X GET -i -H "Accept: application/xml"
+                    <a href="http://localhost:8080/polling/resources/polls" target="_blank">http://localhost:8080/polling/resources/polls</a>
+                </code></td>
+                <td><code><pre>HTTP/1.1 200 OK
+Server: Undefined Product Name - define product and version info in config/branding
+  0.0.0
+X-Powered-By: Servlet/3.1 JSP/2.3 (Undefined Product Name - define product and vers
+ion info in config/branding  0.0.0  Java/Oracle Corporation/1.8)
+Link: &lt;http://localhost:8080/polling/resources/polls&gt; rel=self
+Content-Type: application/xml
+Date: Tue, 18 Nov 2014 17:25:07 GMT
+Content-Length: 546
+
+&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+&lt;polls>
+    &lt;size>1&lt;/size>
+    &lt;_embedded>
+        &lt;poll>
+            &lt;id>1&lt;/id>
+            &lt;status>CREATED&lt;/status>
+            &lt;title>Favourite IDE&lt;/title>
+            &lt;question>Which is your favourite IDE?&lt;/question>
+            &lt;start>2014-11-14T09:00:00+02:00&lt;/start>
+            &lt;end>2014-11-18T18:00:00+02:00&lt;/end>
+            &lt;_links>
+                &lt;link>
+                    &lt;href>http://localhost:8080/polling/resources/polls/1&lt;/href>
+                    &lt;rel>self&lt;/rel>
+                    &lt;type>application/json&lt;/type>
+                &lt;/link>
+            &lt;/_links>
+        &lt;/poll>
+    &lt;/_embedded>
+    &lt;_links>
+        &lt;link>
+            &lt;href>http://localhost:8080/polling/resources/polls&lt;/href>
+            &lt;rel>self&lt;/rel>
+        &lt;/link>
+    &lt;/_links>
+&lt;/polls></pre></code></td>
+            </tr>
+            
+            <tr>
+                <td>Update existing Poll using JSON format</td>
+                <td><code>curl -X PUT -i -H "Content-Type: application/json"
+                    -d "{\"id\":1,\"status\":\"CREATED\",\"title\":\"Java IDEs\",\"question\":\"Which Java IDE is your favorite?\",\"start\":\"2014-11-20T00:00:00+02:00\",\"end\":\"2014-12-20T22:00:00+02:00\"}"
+                    <a href="http://localhost:8080/polling/resources/polls" target="_blank">http://localhost:8080/polling/resources/polls/1</a>
+                </code></td>
+                <td><code><pre>HTTP/1.1 204 No Content
+Server: GlassFish Server Open Source Edition  4.1
+X-Powered-By: Servlet/3.1 JSP/2.3 (GlassFish Server Open Source Edition  4.1  Java/
+Oracle Corporation/1.8)
+Date: Tue, 18 Nov 2014 18:17:04 GMT
+</pre></code></td>
+            </tr>
+
+            <tr>
+                <td>DELETE existing Poll by id</td>
+                <td><code>curl -X DELETE -i -H "Accept: application/json"
+                    <a href="http://localhost:8080/polling/resources/polls" target="_blank">http://localhost:8080/polling/resources/polls/1</a>
+                </code></td>
+                <td><code><pre>HTTP/1.1 200 OK
+Server: GlassFish Server Open Source Edition  4.1
+X-Powered-By: Servlet/3.1 JSP/2.3 (GlassFish Server Open Source Edition  4.1  Java/
+Oracle Corporation/1.8)
+Content-Type: application/xml
+Date: Tue, 18 Nov 2014 18:24:36 GMT
+Content-Length: 255
+
+{
+    "id": 1,
+    "status": "CREATED",
+    "title": "Java IDEs",
+    "question": "Which Java IDE is your favorite?",
+    "start": "2014-11-20T00:00:00+02:00",
+    "end": "2014-12-20T22:00:00+02:00",
+    "alternatives": []
+}
+</pre></code></td>
+            </tr>
+
+            <tr>
+                <td>Add new Alternative to existing Poll using JSON format</td>
+                <td><code>curl -X POST -i -H "Content-Type: application/json" -H "Accept: application/json"
+                    -d "{\"text\":\"Eclipse\",\"position\": 1}"
+                    <a href="http://localhost:8080/polling/resources/polls/1/alternatives" target="_blank">http://localhost:8080/polling/resources/polls/1/alternatives</a>
+                </code></td>
+                <td><code><pre>HTTP/1.1 201 Created
+Server: GlassFish Server Open Source Edition  4.1
+X-Powered-By: Servlet/3.1 JSP/2.3 (GlassFish Server Open Source Edition  4.1  Java/
+Oracle Corporation/1.8)
+Location: http://localhost:8080/polling/resources/polls/1/alternatives/1
+Link: &lt;http://localhost:8080/polling/resources/polls/1/alternatives&gt; rel=self
+Content-Type: application/json
+Date: Tue, 18 Nov 2014 18:36:41 GMT
+Content-Length: 49
+
+{"id":1,"text":"Eclipse","position":1,"votes":[]}</pre></code></td>
+            </tr>
+
+            <tr>
+                <td>Add new Vote for existing Poll Alternative using JSON format</td>
+                <td><code>curl -X POST -i -H "Content-Type: application/json" -H "Accept: application/json"
+                    -d "{\"email\":\"mymail@gmail.com\"}"
+                    <a href="http://localhost:8080/polling/resources/polls/1/alternatives/1/votes" target="_blank">http://localhost:8080/polling/resources/polls/1/alternatives/1/votes</a>
+                </code></td>
+                <td><code><pre>HTTP/1.1 201 Created
+Server: GlassFish Server Open Source Edition  4.1
+X-Powered-By: Servlet/3.1 JSP/2.3 (GlassFish Server Open Source Edition  4.1  Java/
+Oracle Corporation/1.8)
+Location: http://localhost:8080/polling/resources/polls/82/alternatives/1/votes/1
+Link: &lt;http://localhost:8080/polling/resources/polls/82/alternatives/1/votes&gt; rel=self
+Content-Type: application/json
+Date: Tue, 18 Nov 2014 18:49:52 GMT
+Content-Length: 78
+
+{"id":1,"email":"mymail@gmail.com","voteTime":"2014-11-18T20:49:52.311+02:00"}</pre></code></td>
+            </tr>
+            
+            <tr>
+                <td>GET all Polls with added Alternatives and votes in JSON format</td>
+                <td><code>curl -X GET -i -H "Accept: application/json"
+                    <a href="http://localhost:8080/polling/resources/polls" target="_blank">http://localhost:8080/polling/resources/polls</a>
+                </code></td>
+                <td><code><pre>HTTP/1.1 200 OK
+Server: GlassFish Server Open Source Edition  4.1
+X-Powered-By: Servlet/3.1 JSP/2.3 (GlassFish Server Open Source Edition  4.1  Java/
+Oracle Corporation/1.8)
+Link: &lt;http://localhost:8080/polling/resources/polls&gt; rel=self
+Content-Type: application/json
+Date: Tue, 18 Nov 2014 18:57:30 GMT
+Content-Length: 1565
+
+{
+    "size": 1,
+    "_embedded": {
+        "poll": [
+            {
+                "id": 82,
+                "status": "CREATED",
+                "title": "Favourite IDE",
+                "question": "Which is your favourite IDE?",
+                "start": "2014-11-14T09:00:00+02:00",
+                "end": "2014-11-18T18:00:00+02:00",
+                "_embedded": {
+                    "alternative": [
+                        {
+                            "id": 1,
+                            "text": "Eclipse",
+                            "position": 1,
+                            "votes": 2,
+                            "_links": {
+                                "link": [
+                                    {
+                                        "href": "http://localhost:8080/polling/resources/polls/82/alternatives/1",
+                                        "rel": "self",
+                                        "title": "Self link",
+                                        "type": "application/json"
+                                    },
+                                    {
+                                        "href": "http://localhost:8080/polling/resources/polls/82/alternatives/1/votes",
+                                        "rel": "http://iproduct.org/vote",
+                                        "title": "Vote for alternative",
+                                        "type": "application/json"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "text": "NetBeans",
+                            "position": 1,
+                            "votes": 0,
+                            "_links": {
+                                "link": [
+                                    {
+                                        "href": "http://localhost:8080/polling/resources/polls/82/alternatives/2",
+                                        "rel": "self",
+                                        "title": "Self link",
+                                        "type": "application/json"
+                                    },
+                                    {
+                                        "href": "http://localhost:8080/polling/resources/polls/82/alternatives/2/votes",
+                                        "rel": "http://iproduct.org/vote",
+                                        "title": "Vote for alternative",
+                                        "type": "application/json"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 3,
+                            "text": "InteliJ Idea",
+                            "position": 3,
+                            "votes": 0,
+                            "_links": {
+                                "link": [
+                                    {
+                                        "href": "http://localhost:8080/polling/resources/polls/82/alternatives/3",
+                                        "rel": "self",
+                                        "title": "Self link",
+                                        "type": "application/json"
+                                    },
+                                    {
+                                        "href": "http://localhost:8080/polling/resources/polls/82/alternatives/3/votes",
+                                        "rel": "http://iproduct.org/vote",
+                                        "title": "Vote for alternative",
+                                        "type": "application/json"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "_links": {
+                    "link": [
+                        {
+                            "href": "http://localhost:8080/polling/resources/polls/82",
+                            "rel": "self",
+                            "type": "application/json"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "_links": {
+        "link": [
+            {
+                "href": "http://localhost:8080/polling/resources/polls",
+                "rel": "self"
+            }
+        ]
+    }
+}</pre></code></td>
+            </tr>
+
+        </table>
+    </blockquote>
+</body>
+</html>
