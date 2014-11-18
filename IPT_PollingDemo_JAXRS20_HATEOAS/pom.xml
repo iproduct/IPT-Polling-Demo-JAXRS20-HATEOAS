@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.iproduct</groupId>
+    <artifactId>ipt-polling-demo</artifactId>
+    <packaging>war</packaging>
+    <name>IPT_PollingDemo_JAXRS20_HATEOAS</name>
+    <description>IPT Polling Demo showing REST HATEOAS implementation and novelties using JAX-RS 2.0.</description>
+    <version>1.0-SNAPSHOT</version>
+    <profiles>
+        <profile>
+            <id>test</id>
+            <build>
+                <plugins>
+                    <!-- Unit Tests **/*Test.java-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.18</version>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <jersey.config.test.container.factory>${external.container.factory}</jersey.config.test.container.factory>
+                                <jersey.config.test.container.port>${external.container.port}</jersey.config.test.container.port>
+                            </systemPropertyVariables>            
+                            <argLine>-Djava.security.manager -Djava.security.policy=${project.basedir}/src/test/resources/java.policy -Dfile.encoding="UTF-8"</argLine>                  
+                                           
+                            <skip>true</skip>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>surefire-it</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>false</skip>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    
+                    </plugin>
+                    
+                    <!-- Integration Tests **/IT*.java, **/*IT.java, and **/*ITCase.java-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.18</version>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <jersey.config.test.container.factory>${external.container.factory}</jersey.config.test.container.factory>
+                                <jersey.config.test.container.port>${external.container.port}</jersey.config.test.container.port>
+                            </systemPropertyVariables>            
+                            <argLine>-Djava.security.manager -Djava.security.policy=${project.basedir}/src/test/resources/java.policy -Dfile.encoding="UTF-8"</argLine>
+                        </configuration> 
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <properties>
+                <!-- External test container configuration is done via properties to allow overriding via command line. -->
+               <external.container.factory>org.glassfish.jersey.test.external.ExternalTestContainerFactory</external.container.factory>
+                <external.container.port>8080</external.container.port>
+                <maven.test.skip>false</maven.test.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>skip-test</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            
+            <!-- Run the application using "mvn embedded-glassfish:run" -->
+            <plugin>
+                <groupId>org.glassfish.embedded</groupId>
+                <artifactId>maven-embedded-glassfish-plugin</artifactId>
+                <version>4.0</version>
+                <configuration>
+                    <goalPrefix>embedded-glassfish</goalPrefix>
+                    <app>${project.build.directory}/ipt-polling-demo-1.0-SNAPSHOT.war</app>
+                    <!--<configFile>${basedir}/src/main/resources/domain.xml</configFile> -->
+                    <port>8080</port> 
+                    <contextRoot>polling</contextRoot> 
+                    <autoDelete>true</autoDelete>
+                </configuration>
+<!--                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>-->
+                <executions> 
+                    <execution> 
+                        <id>start-glassfish</id> 
+                        <phase>pre-integration-test</phase> 
+                        <goals> 
+                            <goal>start</goal> 
+                        </goals> 
+                    </execution> 
+                    <execution> 
+                        <id>glassfish-deploy</id> 
+                        <phase>pre-integration-test</phase> 
+                        <goals> 
+                            <goal>deploy</goal> 
+                        </goals> 
+                    </execution> 
+                    <execution> 
+                        <id>glassfish-undeploy</id> 
+                        <phase>post-integration-test</phase> 
+                        <goals> 
+                            <goal>undeploy</goal> 
+                        </goals> 
+                    </execution> 
+                    <execution> 
+                        <id>stop-glassfish</id> 
+                        <phase>post-integration-test</phase> 
+                        <goals> 
+                            <goal>stop</goal> 
+                        </goals> 
+                    </execution> 
+                </executions> 
+                <dependencies>
+                    <dependency>
+                        <groupId>org.glassfish.main</groupId>
+                        <artifactId>simple-glassfish-api</artifactId>
+                        <version>4.0-b79</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.glassfish.main.extras</groupId>
+                        <artifactId>glassfish-embedded-all</artifactId>
+                        <version>4.1</version>
+                    </dependency>
+                
+                    <dependency>
+                        <groupId>org.glassfish</groupId>
+                        <artifactId>javax.ejb</artifactId>
+                        <version>3.2-b06</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.glassfish</groupId>
+                        <artifactId>javax.servlet</artifactId>
+                        <version>3.2-b06</version>
+                    </dependency>              
+                </dependencies>
+            </plugin>          
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xslt-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>update-gf-deps</id>
+                        <phase>package</phase> <!-- append to the packaging phase. -->
+                        <goals>
+                            <goal>transform</goal> <!-- goals == mojos -->
+                        </goals>
+                        <configuration>
+                            <xslFile>src/main/xslt/gf.xsl</xslFile>
+                            <srcDir>.</srcDir>
+                            <srcIncludes>pom.xml</srcIncludes>
+                            <destDir>target/gf-pom-file</destDir>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>            
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/src.xml</descriptor>
+                        <descriptor>src/main/assembly/glassfish.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- append to the packaging phase. -->
+                        <goals>
+                            <goal>attached</goal> <!-- goals == mojos -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
+    
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.glassfish.jersey</groupId>
+                <artifactId>jersey-bom</artifactId>
+                <version>${jersey.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.glassfish.jersey.bundles.glassfish.v4_0</groupId>
+            <artifactId>jersey-gfv4_0-core</artifactId>
+            <version>2.0-rc1</version>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.ejb</artifactId>
+            <version>3.2-b06</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-external</artifactId>
+            <version>${jersey.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+            <!-- use the following artifactId if you don't need servlet 2.x compatibility -->
+            <!-- artifactId>jersey-container-servlet</artifactId -->
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>1.2</version>
+            <scope>provided</scope>
+        </dependency>
+        
+      <!--  <dependency>
+            <groupId>javax.ejb</groupId>
+            <artifactId>javax.ejb-api</artifactId>
+            <version>3.2</version>
+            <scope>provided</scope>
+        </dependency> -->
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>jta</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>     
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>javax.persistence</artifactId>
+            <version>2.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>eclipselink</artifactId>
+            <version>2.5.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.jpa.modelgen.processor</artifactId>
+            <version>2.5.2</version>
+            <scope>provided</scope>
+        </dependency>
+        
+ <!--       <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+            <scope>test</scope>
+        </dependency> -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <pluginRepositories>      
+        <pluginRepository>
+            <id>maven2-glassfish-repository.dev.java.net</id>
+            <name>Java.net Repository for Maven</name>
+            <url>http://download.java.net/maven/glassfish/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>maven.java.net</id>
+            <name>Java.net Repository for Maven</name>
+            <url>https://maven.java.net/content/groups/promoted/</url>
+        </pluginRepository>
+    </pluginRepositories>
+    <repositories>
+        <repository>
+            <id>glassfish-repository</id>
+            <name>Java.net Repository for Glassfish</name>
+            <url>http://download.java.net/maven/glassfish</url>
+        </repository>
+        <repository>
+            <id>maven.java.net</id>
+            <name>Java.net Repository for Maven</name>
+            <url>https://maven.java.net/content/groups/promoted/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+        <jersey.version>2.13</jersey.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+</project>
