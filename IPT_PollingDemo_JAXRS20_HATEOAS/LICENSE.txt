@@ -350,28 +350,28 @@ Technologies (IPT) designates this particular file as subject to the "Classpath"
 exception as provided by IPT in the GPL Version 2 License file that accompanies 
 this code."
 
-Linking code from IPT_JAX-RS_2.0_Demos projects statically or dynamically 
-with other modules is making a combined work based on that code. Thus, the terms
-and conditions of the GNU General Public License Version 2 cover the whole 
-combination.
+Linking code from IPT_Polling_Demo_JAXRS20_HATEOAS projects statically or 
+dynamically with other modules is making a combined work based on that code. 
+Thus, the terms and conditions of the GNU General Public License Version 2 cover
+the whole combination.
 
 In addition, as a special exception, the copyright holders of code 
-from IPT_JAX-RS_2.0_Demos projects give you permission to combine 
-code from IPT_JAX-RS_2.0_Demos projects with independent modules
+from IPT_Polling_Demo_JAXRS20_HATEOAS projects give you permission to combine 
+code from IPT_Polling_Demo_JAXRS20_HATEOAS projects with independent modules
 to produce an executable, regardless of the license terms 
 of these independent modules. You may copy and distribute such a system 
-following the terms of the GNU GPL version 2 for IPT_JAX-RS_2.0_Demos projects 
-and the licenses of the other code concerned, provided that you also meet, 
-for each linked independent module, the terms and conditions of the license 
-of that module.
+following the terms of the GNU GPL version 2 for IPT_Polling_Demo_JAXRS20_HATEOAS
+projects and the licenses of the other code concerned, provided that you also 
+meet, for each linked independent module, the terms and conditions of the 
+license of that module.
 
 An independent module is a module which is not derived from or based on 
-code from IPT_JAX-RS_2.0_Demos projects.
+code from IPT_Polling_Demo_JAXRS20_HATEOAS projects.
 
-Note that people who make modified versions of code from IPT_JAX-RS_2.0_Demos
-projects are not obligated to grant this special exception for their modified
-versions; it is their choice whether to do so. The GNU General Public License
-gives permission to release a modified version without this exception; 
-this exception also makes it possible to release a modified version which 
-carries forward this exception. 
+Note that people who make modified versions of code from 
+IPT_Polling_Demo_JAXRS20_HATEOAS projects are not obligated to grant this 
+special exception for their modified versions; it is their choice whether to 
+do so. The GNU General Public License gives permission to release a modified 
+version without this exception; this exception also makes it possible to 
+release a modified version which carries forward this exception. 
 
